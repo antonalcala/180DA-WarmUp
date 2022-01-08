@@ -4,11 +4,6 @@ import cv2
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-# combination of code from:
-# https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html (masking)
-# https://code.likeagirl.io/finding-dominant-colour-on-an-image-b4e075f98097 (K-Means)
-# https://www.analyticsvidhya.com/blog/2021/08/getting-started-with-object-tracking-using-opencv/ (box around mask)
-
 def find_histogram(clt):
 	numLabels = np.arange(0, len(np.unique(clt.labels_)) + 1)
 	(hist, _) = np.histogram(clt.labels_, bins=numLabels)
@@ -44,7 +39,6 @@ while(True):
     mask = cv2.inRange(hsv, lower, upper)
 
     contours,_= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    # crashes if there is nothing to detect; stop with if statement
     if contours:
         max_contour = contours[0]
         for contour in contours:
@@ -56,16 +50,11 @@ while(True):
         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),4)
 
     #Display the resulting frame
-    cv2.imshow('frame', frame)
-    cv2.imshow('mask', mask)
+    cv2.imshow('res', cv2.bitwise_and(frame, frame, mask= mask))
     if contours:
         cv2.imshow('section', frame[y:y+h, x:x+w])
 
-    # currently unable to stop crashing if there is no red to evaluate the K-Means of
-    if contours:
-        img = frame[y+4:y+h-4,x+4:x+w-4]
-    else:
-        img = frame
+    img = frame[y+4:y+h-4,x+4:x+w-4]
     img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
     clt = KMeans(n_clusters=3) #cluster number
     clt.fit(img)
