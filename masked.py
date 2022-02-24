@@ -27,6 +27,8 @@ def plot_colors2(hist, centroids):
 	return bar
 
 cap = cv2.VideoCapture(0)
+y = 0
+h = 0
 
 while(True):
     #Capture frame-by-frame
@@ -34,8 +36,8 @@ while(True):
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     #picks out the colour "red"
-    lower = np.array([170,125,125])
-    upper = np.array([180,255,255])
+    lower = np.array([0,10,10])
+    upper = np.array([4,255,255])
     mask = cv2.inRange(hsv, lower, upper)
 
     contours,_= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
