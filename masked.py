@@ -34,11 +34,13 @@ while(True):
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     #picks out the colour "red"
-    lower = np.array([160,100,20])
-    upper = np.array([179,255,255])
+    lower = np.array([170,125,125])
+    upper = np.array([180,255,255])
     mask = cv2.inRange(hsv, lower, upper)
 
     contours,_= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    cv2.line(frame, (0, 157), (639, 157), (0, 0, 255), 3)
+    cv2.line(frame, (0, 314), (639, 314), (255, 0, 0), 3)
     if contours:
         max_contour = contours[0]
         for contour in contours:
@@ -48,19 +50,26 @@ while(True):
         approx=cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour,True),True)
         x,y,w,h=cv2.boundingRect(approx)
         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),4)
+    if ((y+(h/2)) < 157):
+        print("Top")
+    elif ((y+(h/2)) > 314):
+        print("Bottom")
+    else:
+        print("Middle")
 
     #Display the resulting frame
-    cv2.imshow('res', cv2.bitwise_and(frame, frame, mask= mask))
-    if contours:
-        cv2.imshow('section', frame[y:y+h, x:x+w])
+    cv2.imshow('res', cv2.bitwise_and(frame, frame))
+    #Focuses on object in box
+    #if contours:
+    #    cv2.imshow('section', frame[y:y+h, x:x+w])
 
-    img = frame[y+4:y+h-4,x+4:x+w-4]
-    img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
-    clt = KMeans(n_clusters=3) #cluster number
-    clt.fit(img)
-    hist = find_histogram(clt)
-    bar = plot_colors2(hist, clt.cluster_centers_)
-    cv2.imshow('dominant', bar)
+    #img = frame[y+4:y+h-4,x+4:x+w-4]
+    #img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
+    #clt = KMeans(n_clusters=3) #cluster number
+    #clt.fit(img)
+    #hist = find_histogram(clt)
+    #bar = plot_colors2(hist, clt.cluster_centers_)
+    #cv2.imshow('dominant', bar)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
