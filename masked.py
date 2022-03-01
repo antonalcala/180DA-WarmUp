@@ -30,19 +30,37 @@ cap = cv2.VideoCapture(0)
 y = 0
 h = 0
 
+nLevels = 3 # change this to adjust the total number of Levels
+nLines = nLevels - 1
+lvPlace = list(range(1, nLevels+1))
+yPlacements = list(range(0, nLevels))
+ylim = 479
+linePlacement = ylim//(nLevels)
+
 while(True):
     #Capture frame-by-frame
     ret, frame = cap.read()
     
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     #picks out the colour "red"
-    lower = np.array([0,10,10])
-    upper = np.array([4,255,255])
+    # red under white light: ([0, 10, 10], [4, 255, 255])
+    lower = np.array([130,70,70])
+    upper = np.array([145,255,255])
     mask = cv2.inRange(hsv, lower, upper)
 
     contours,_= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    cv2.line(frame, (0, 157), (639, 157), (0, 0, 255), 3)
-    cv2.line(frame, (0, 314), (639, 314), (255, 0, 0), 3)
+    # red horizontal line
+    #cv2.line(frame, (0, 157), (639, 157), (0, 0, 255), 3)
+    # blue horizontal line
+    #cv2.line(frame, (0, 314), (639, 314), (255, 0, 0), 3)
+
+    # MAKING N lines across the screen
+    for i in range(nLines):
+        eye1 = i+1
+        L = linePlacement*eye1
+        yPlacements[i] = L
+        cv2.line(frame, (0, L), (639, L), (0,0, 255), 3)
+
     if contours:
         max_contour = contours[0]
         for contour in contours:
@@ -52,12 +70,25 @@ while(True):
         approx=cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour,True),True)
         x,y,w,h=cv2.boundingRect(approx)
         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),4)
-    if ((y+(h/2)) < 157):
-        print("Top")
-    elif ((y+(h/2)) > 314):
-        print("Bottom")
+#    if ((y+(h/2)) < 157):
+#        print("Top")
+#    elif ((y+(h/2)) > 314):
+#        print("Bottom")
+#    else:
+#        print("Middle")
+    topLim = nLines - 1
+    yCenter = y + (h//2)
+    if (yCenter < yPlacements[0]):
+        print("Level 1")
+    elif (yCenter > yPlacements[topLim]):
+        print("Level " + str(nLevels))
     else:
-        print("Middle")
+        for i in range(nLines):
+            line2 = i+1
+            if (yCenter > yPlacements[i]) and (yCenter < yPlacements[line2]):
+                print("Level " + str(lvPlace[line2]))
+
+
 
     #Display the resulting frame
     cv2.imshow('res', cv2.bitwise_and(frame, frame))
