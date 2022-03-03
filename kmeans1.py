@@ -65,7 +65,7 @@ while(True):
     cv2.imshow('res', cv2.bitwise_and(frame, frame))
 
     # in our case, img = "opencv_frame_0.png"
-    img = frame[y+4:y+h-4,x+4:x+w-4]
+    img = cv2.imread("opencv_frame_0.png")
     img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
     clt = KMeans(n_clusters=3) #cluster number
     clt.fit(img)

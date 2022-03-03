@@ -1,7 +1,9 @@
 import numpy as np
 import cv2
+import math
 
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 # Start of program
 cap = cv2.VideoCapture(0)
@@ -30,17 +32,29 @@ while True:
 cv2.waitKey(1)
 cv2.destroyWindow('Calibration')
 
+## Take the KMeans of image
+    # Method 1
 #kmeansimg = cv2.imread('opencv_frame_0.png')
 #Z = kmeansimg.reshape((-1,3))
 #Z = np.float32(Z)
 #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 #K = 1
 #ret,label,center=cv2.kmeans(Z,K,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
-# Now convert back into uint8, and make original image
+##Now convert back into uint8, and make original image
 #center = np.uint8(center)
 #res = center[label.flatten()]
 #res2 = res.reshape((kmeansimg.shape))
 #cv2.imshow('res2',res2)
+
+    # Method 2
+n_clusters = 10
+img = cv2.imread("opencv_frame_0.png")
+img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
+clt = KMeans(n_clusters) #cluster number
+clt.fit(img)
+#hist = find_histogram(clt)
+#bar = plot_colors2(hist, clt.cluster_centers_)
 
 
 # Setting constants
@@ -53,6 +67,31 @@ yPlacements = list(range(0, nLevels))
 ylim = 479
 linePlacement = ylim//(nLevels)
 
+    # Determine BGR range
+b_min = clt.cluster_centers_[0][0]
+g_min = clt.cluster_centers_[0][1]
+r_min = clt.cluster_centers_[0][2]
+
+b_max = clt.cluster_centers_[0][0]
+g_max = clt.cluster_centers_[0][1]
+r_max = clt.cluster_centers_[0][2]
+
+# i [0, 1, 2, ..., n_clusters - 1]; redundant to check i = 0
+for i in range(1,n_clusters):
+    if b_min > clt.cluster_centers_[i][0]:
+        b_min = clt.cluster_centers_[i][0]
+    if g_min > clt.cluster_centers_[i][1]:
+        g_min = clt.cluster_centers_[i][1]
+    if r_min > clt.cluster_centers_[i][2]:
+        r_min = clt.cluster_centers_[i][2]
+
+    if b_max < clt.cluster_centers_[i][0]:
+        b_max = clt.cluster_centers_[i][0]
+    if g_max < clt.cluster_centers_[i][1]:
+        g_max = clt.cluster_centers_[i][1]
+    if r_max < clt.cluster_centers_[i][2]:
+        r_max = clt.cluster_centers_[i][2]
+
 while(True):
     #Capture frame-by-frame
     ret, frame = cap.read()
@@ -61,8 +100,9 @@ while(True):
 
     # Colour Mask
     # red under white light: ([0, 10, 10], [4, 255, 255])
-    lower = np.array([130,70,70])
-    upper = np.array([145,255,255])
+    # Purple: ([130, 70, 70], [145, 255, 255])
+    lower = np.array([b_min,g_min,r_min])
+    upper = np.array([b_max,g_max,r_max])
     # Find colours in camera feed
     mask = cv2.inRange(hsv, lower, upper)
     contours,_= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
