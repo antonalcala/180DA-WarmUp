@@ -60,7 +60,7 @@ clt.fit(img)
 # Setting constants
 y = 0
 h = 0
-nLevels = 3 # change this to adjust the total number of Levels
+nLevels = 4 # change this to adjust the total number of Levels
 nLines = nLevels - 1
 lvPlace = list(range(1, nLevels+1))
 yPlacements = list(range(0, nLevels))
