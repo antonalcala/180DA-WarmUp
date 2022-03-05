@@ -5,6 +5,11 @@ import math
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
+def get_pos(xPos, yPos):
+    xPosPercent = xPos / 640
+    yPosPercent = yPos / 480
+    return xPosPercent, yPosPercent
+
 # Start of program
 cap = cv2.VideoCapture(0)
 
@@ -53,11 +58,10 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 img = img.reshape((img.shape[0] * img.shape[1],3)) #represent 	as row*column,channel number
 clt = KMeans(n_clusters) #cluster number
 clt.fit(img)
-#hist = find_histogram(clt)
-#bar = plot_colors2(hist, clt.cluster_centers_)
 
 
 # Setting constants
+x = 0
 y = 0
 h = 0
 nLevels = 4 # change this to adjust the total number of Levels
@@ -66,8 +70,9 @@ lvPlace = list(range(1, nLevels+1))
 yPlacements = list(range(0, nLevels))
 ylim = 479
 linePlacement = ylim//(nLevels)
+is_visible = False
 
-    # Determine BGR range
+    # Determine BGR range (initialization)
 b_min = clt.cluster_centers_[0][0]
 g_min = clt.cluster_centers_[0][1]
 r_min = clt.cluster_centers_[0][2]
@@ -99,7 +104,6 @@ while(True):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Colour Mask
-    # red under white light: ([0, 10, 10], [4, 255, 255])
     # Purple: ([130, 70, 70], [145, 255, 255])
     lower = np.array([b_min,g_min,r_min])
     upper = np.array([b_max,g_max,r_max])
@@ -142,19 +146,24 @@ while(True):
         approx=cv2.approxPolyDP(contour, 0.01*cv2.arcLength(contour,True),True)
         x,y,w,h=cv2.boundingRect(approx)
         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),4)
+        is_visible = True
+    else:
+        is_visible = False
 
     # Printing Lines on Screen
     topLim = nLines - 1
     yCenter = y + (h//2)
+    xCenter = x + (w//2)
+    posPer = get_pos(xCenter, yCenter)
     if (yCenter < yPlacements[0]):
-        print("Level 1")
+        print("Level 1 " + str(posPer))
     elif (yCenter > yPlacements[topLim]):
-        print("Level " + str(nLevels))
+        print("Level " + str(nLevels) + " " + str(posPer))
     else:
         for i in range(nLines):
             line2 = i+1
             if (yCenter > yPlacements[i]) and (yCenter < yPlacements[line2]):
-                print("Level " + str(lvPlace[line2]))
+                print("Level " + str(lvPlace[line2]) + " " + str(posPer))
 
     #Display the resulting frame
     cv2.imshow('res', cv2.bitwise_and(frame, frame))
