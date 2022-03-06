@@ -68,19 +68,6 @@ class CameraIface:
             else:
                 self.is_visible = False
         
-            # Printing Lines on Screen
-            topLim = self.nLines - 1
-            yCenter = self.y + (self.h // 2)
-            #xCenter = self.x + (self.w // 2)
-            if (yCenter < self.yPlacements[0]):
-                print("Level 1 ")
-            elif (yCenter > self.yPlacements[topLim]):
-                print("Level " + str(self.num_levels))
-            else:
-                for i in range(self.nLines):
-                    line2 = i + 1
-                    if (yCenter > self.yPlacements[i]) and (yCenter < self.yPlacements[line2]):
-                        print("Level " + str(self.lvPlace[line2]))
         
             # Display the resulting frame
             cv2.imshow('res', cv2.bitwise_and(frame, frame))
@@ -162,4 +149,21 @@ class CameraIface:
         y = self.y + (self.h//2)
         # ... write the code that takes a picture and then returns the center position of the ball ...
         return x, y
+    
+    def get_object_level(self):
+        # Printing Lines on Screen
+        topLim = self.nLines - 1
+        yCenter = self.y + (self.h // 2)
+        curr_level = "Invalid Level"
+        #xCenter = self.x + (self.w // 2)
+        if (yCenter < self.yPlacements[0]):
+            curr_level = "Level 1"
+        elif (yCenter > self.yPlacements[topLim]):
+            curr_level = "Level " + str(self.num_levels)
+        else:
+            for i in range(self.nLines):
+                line2 = i + 1
+                if (yCenter > self.yPlacements[i]) and (yCenter < self.yPlacements[line2]):
+                    curr_level = "Level " + str(self.lvPlace[line2])
 
+        return curr_level
