@@ -136,7 +136,7 @@ class CameraIface:
             eye1 = i + 1
             L = self.linePlacement * eye1
             self.yPlacements[i] = L
-            cv2.line(frame, (0, L), (639, L), (0, 0, 255), 3)
+            cv2.line(frame, (0, L), (self.camera_width, L), (0, 0, 255), 3)
 
         # Creating Bounding Box
         if contours:
