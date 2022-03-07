@@ -34,6 +34,8 @@ class CameraIface:
 
         # Camera Program
         self.cap1 = cv2.VideoCapture(0)
+        self.cap1.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_width)
+        self.cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, self.camera_height)
 
     def calibrate(self):
         # ... create a function that enters calibration mode here ... [DONE]
